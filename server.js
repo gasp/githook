@@ -9,7 +9,7 @@ var running = false;
 var iterator = 0;
 var queue = [];
 var port = 4004;
-var version = '0.2.2';
+var version = '0.2.8';
 
 var server = http.createServer(function (req, res) {
   res.writeHead(200, {'Content-Type': 'text/plain'});
@@ -23,9 +23,6 @@ var server = http.createServer(function (req, res) {
   res.write('queue: ' + queue.length + '\n');
   res.write(req.method + ' ' + req.url + '\n');
 
-  var isThisAGithubDelivery = !typeof(req.headers['x-gitHub-event'] === undefined);
-  console.log(req.method, isThisAGithubDelivery);
-
   if(req.method === 'GET' && req.url === '/') {
     res.end('This service is used for github webhooks');
     return;
@@ -36,46 +33,57 @@ var server = http.createServer(function (req, res) {
     return;
   }
 
-  // getting the payload
-  // req @stream
-  // cb @function with an argument as json
-  var payload2json = function (req, cb) {
-    var body = '';
-    var json = {};
-    req.addListener('error', function(e) {
-      console.error('payload got a error', e);
-      cb({});
-    });
-
-    req.addListener('data', function(chunk) {
-      console.log('got a chunk');
-      body += chunk;
-    });
-
-    req.addListener('end', function(chunk) {
-      console.log('ended');
-      if (chunk) {
-        body += chunk;
-      }
-      try {
-        json = JSON.parse(body);
-      } catch (e) {
-        console.error('payload got a error parsing', e);
-      }
-      cb(json);
-    });
+  var isThisAGithubDelivery = !(typeof(req.headers['x-github-event']) === 'undefined');
+  if(!isThisAGithubDelivery) {
+    res.end('This does not come from github');
+    return;
   }
-  payload2json(req, function (payload) {
-    console.log(payload)
-  });
-
-
 
   if(queue.length > 16) {
     res.end('queue too long, aborting'  + queue.join(','));
     return;
   }
-  addToQueue('env4.sh');
+  payload2json(req, function (payload) {
+    var repository = '';
+    var branch = '';
+    var env = ''; // env4, env9
+    var mod = ''; // bo, cache, front, website
+    try {
+      branch = payload.ref;
+      repository = payload.repository.name;
+    } catch (e) {
+      console.log('payload not correctly parsed')
+    }
+
+    switch (branch) {
+      case 'refs/heads/dom':
+        env = 'env4';
+        break;
+      case 'refs/heads/master-dev':
+        env = 'env9';
+        break;
+      default:
+    }
+
+    switch (repository) {
+      case 'client.videodesk.com':
+        mod = 'bo';
+        break;
+      case 'module':
+        mod = 'cache';
+        break;
+      case 'module-front':
+        mod = 'front';
+        break;
+      case 'front-demo':
+        mod = 'website';
+        break;
+      default:
+    }
+    if(env.length && mod.length) {
+      addToQueue('scripts/' + env + '-' + mod + '.sh');
+    }
+  });
 
   if(!running) {
     res.write('processsing');
@@ -109,11 +117,13 @@ function run() {
   }
   var argument = [];
   argument.push(queue.pop());
+  console.log(new Date().toString());
   console.log(' running ' + argument[0] + ', ' + queue.length + ' in queue');
   var process = spawn('bash', argument);
   running = true;
   process.on('close', function (code) {
-    // console.log('child process exited with code ' + code);
+    console.log(new Date().toString());
+    console.log('child process exited with code ' + code);
     running = false;
   });
 }
@@ -125,17 +135,43 @@ function runWhenAvailable() {
     setTimeout(runWhenAvailable, 10000);
     return;
   }
-
   // queue is empty
   if(queue.length < 1) {
     console.log('idle');
     return;
   }
-
-  //
   run();
+}
+
+// getting the payload
+// req @stream
+// cb @function with an argument as json
+function payload2json (req, cb) {
+  var body = '';
+  var json = {};
+  req.addListener('error', function(e) {
+    console.error('payload got a error', e);
+    cb({});
+  });
+
+  req.addListener('data', function(chunk) {
+    console.log('got a chunk');
+    body += chunk;
+  });
+
+  req.addListener('end', function(chunk) {
+    console.log('ended');
+    if (chunk) {
+      body += chunk;
+    }
+    try {
+      json = JSON.parse(body);
+    } catch (e) {
+      console.error('payload got a error parsing', e);
+    }
+    cb(json);
+  });
 }
 
 server.listen(port);
 console.log('listening on '+ port);
-
