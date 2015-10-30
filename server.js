@@ -9,7 +9,7 @@ var running = false;
 var iterator = 0;
 var queue = [];
 var port = 4004;
-var version = '0.2.8';
+var version = '0.2.9';
 
 var server = http.createServer(function (req, res) {
   res.writeHead(200, {'Content-Type': 'text/plain'});
@@ -49,18 +49,27 @@ var server = http.createServer(function (req, res) {
     var env = ''; // env4, env9
     var mod = ''; // bo, cache, front, website
     try {
-      branch = payload.ref;
+      // ref is the branch
+      // when it is a merge (or PR), the base_ref is what we need
+      // otherwise base_ref is null
+      branch = payload.base_ref || payload.ref;
       repository = payload.repository.name;
     } catch (e) {
       console.log('payload not correctly parsed')
     }
 
     switch (branch) {
-      case 'refs/heads/dom':
-        env = 'env4';
-        break;
-      case 'refs/heads/master-dev':
+      case 'refs/heads/release-1.8.1':
         env = 'env9';
+        break;
+      case 'refs/heads/release-1.7.3':
+        env = 'env3';
+        break;
+      case 'refs/heads/microsoft-dev':
+        env = 'env6';
+        break;
+      case 'refs/heads/salesforce':
+	env = 'env1';
         break;
       default:
     }
