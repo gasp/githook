@@ -4,9 +4,9 @@ echo "---------------- new hook ----------------"
 echo "---------------- env9.sh  ----------------"
 date
 
-#cache
-echo "---------------- cache"
-cd ~/www/env9/cache
+# front
+echo "---------------- front"
+cd ~/www/env6/front
 git status
 git pull
-echo 'flush_all' | nc localhost 11211
+php private/bin/merge.php

@@ -6,7 +6,7 @@ date
 
 # bo
 echo "---------------- bo"
-cd ~/www/env9/bo
+cd ~/www/env6/bo
 git pull
 git status
 cd VideoDesk/Symfony

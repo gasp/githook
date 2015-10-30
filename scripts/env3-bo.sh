@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 echo "---------------- new hook ----------------"
-echo "---------------- env9.sh  ----------------"
+echo "---------------- env3.sh  ----------------"
 date
 
 # bo
 echo "---------------- bo"
-cd ~/www/env9/bo
+cd ~/www/env3/bo
 git pull
 git status
 cd VideoDesk/Symfony
