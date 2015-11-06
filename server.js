@@ -8,10 +8,10 @@ var fs = require('fs');
 var http = require('http');
 
 var running = false;
-var iterator = 0;
 var queue = [];
 var port = 4004;
 var version = '0.2.9';
+var deliveries = [];
 
 var server = http.createServer(function (req, res) {
   res.writeHead(200, {'Content-Type': 'text/plain'});
@@ -21,7 +21,7 @@ var server = http.createServer(function (req, res) {
     return;
   }
   res.write('hook ' + version + '!\n');
-  res.write('iterator: ' + iterator + '\n');
+  res.write('deliveries: ' + deliveries.length + '\n');
   res.write('queue: ' + queue.length + '\n');
   res.write(req.method + ' ' + req.url + '\n');
 
@@ -35,7 +35,7 @@ var server = http.createServer(function (req, res) {
     return;
   }
 
-  var isThisAGithubDelivery = !(typeof(req.headers['x-github-event']) === 'undefined');
+  var isThisAGithubDelivery = (typeof(req.headers['x-github-event']) === 'string');
   if(!isThisAGithubDelivery) {
     res.end('This does not come from github');
     return;
@@ -45,6 +45,10 @@ var server = http.createServer(function (req, res) {
     res.end('queue too long, aborting'  + queue.join(','));
     return;
   }
+
+  var delivery = req.headers['x-github-delivery'] ||
+    Math.floor(Math.random()*1000);
+
   payload2json(req, function (payload) {
     var repository = '';
     var branch = '';
@@ -57,7 +61,7 @@ var server = http.createServer(function (req, res) {
       branch = payload.base_ref || payload.ref;
       repository = payload.repository.name;
     } catch (e) {
-      console.log('payload not correctly parsed')
+      console.log('payload not correctly parsed');
     }
 
     switch (branch) {
@@ -106,11 +110,11 @@ var server = http.createServer(function (req, res) {
     res.write('a process is already running, this command will be delayed');
   }
 
-  res.write('\n\nthis hook has been running ' + iterator + ' times since launch');
+  res.write('\n\nthis hook has been running ' + deliveries.length + ' times since launch');
   res.write('\n\nthere are ' + queue.length + ' items in queue');
   res.write('\n' + queue.join(','));
   res.end();
-  iterator ++;
+  deliveries.push(delivery);
 });
 
 function log(error, stdout, stderr) {
