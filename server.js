@@ -6,11 +6,12 @@ var sys = require('sys');
 var spawn = require('child_process').spawn;
 var fs = require('fs');
 var http = require('http');
+var payload2json = require('./lib/payload2json');
 
 var running = false;
 var queue = [];
 var port = 4004;
-var version = '0.2.9';
+var version = '0.2.10';
 var deliveries = [];
 
 var server = http.createServer(function (req, res) {
@@ -159,36 +160,6 @@ function runWhenAvailable() {
     return;
   }
   run();
-}
-
-// getting the payload
-// req @stream
-// cb @function with an argument as json
-function payload2json (req, cb) {
-  var body = '';
-  var json = {};
-  req.addListener('error', function(e) {
-    console.error('payload got a error', e);
-    cb({});
-  });
-
-  req.addListener('data', function(chunk) {
-    console.log('got a chunk');
-    body += chunk;
-  });
-
-  req.addListener('end', function(chunk) {
-    console.log('ended');
-    if (chunk) {
-      body += chunk;
-    }
-    try {
-      json = JSON.parse(body);
-    } catch (e) {
-      console.error('payload got a error parsing', e);
-    }
-    cb(json);
-  });
 }
 
 server.listen(port);
