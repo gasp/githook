@@ -47,8 +47,9 @@ var server = http.createServer(function (req, res) {
     return;
   }
 
-  var delivery = req.headers['x-github-delivery'] ||
-    Math.floor(Math.random()*1000);
+  var delivery = {
+    id: req.headers['x-github-delivery'] || Math.floor(Math.random()*1000),
+  };
 
   payload2json(req, function (payload) {
     var repository = '';
