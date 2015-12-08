@@ -6,12 +6,16 @@ var sys = require('sys');
 var spawn = require('child_process').spawn;
 var fs = require('fs');
 var http = require('http');
+
 var payload2json = require('./lib/payload2json');
+var getbranches = require('./lib/getbranches');
+var repository2folder = require('./lib/repository2folder');
+var config = require('./config');
 
 var running = false;
 var queue = [];
 var port = 4004;
-var version = '0.2.10';
+var version = '0.2.11';
 var deliveries = [];
 
 var server = http.createServer(function (req, res) {
@@ -52,57 +56,7 @@ var server = http.createServer(function (req, res) {
   };
 
   payload2json(req, function (payload) {
-    var repository = '';
-    var branch = '';
-    var env = ''; // env4, env9
-    var mod = ''; // bo, cache, front, website
-    try {
-      // ref is the branch
-      // when it is a merge (or PR), the base_ref is what we need
-      // otherwise base_ref is null
-      branch = payload.base_ref || payload.ref;
-      repository = payload.repository.name;
-    } catch (e) {
-      console.log('payload not correctly parsed');
-    }
-
-    switch (branch) {
-      case 'refs/heads/release-1.8.1':
-        env = 'env9';
-        break;
-      case 'refs/heads/release-1.7.3':
-        env = 'env3';
-        break;
-      case 'refs/heads/microsoft-dev':
-        env = 'env6';
-        break;
-      case 'refs/heads/salesforce':
-        env = 'env1';
-        break;
-      case 'refs/heads/master-dev':
-        env = 'envdevrow';
-        break;
-      default:
-    }
-
-    switch (repository) {
-      case 'client.videodesk.com':
-        mod = 'bo';
-        break;
-      case 'module':
-        mod = 'cache';
-        break;
-      case 'module-front':
-        mod = 'front';
-        break;
-      case 'front-demo':
-        mod = 'website';
-        break;
-      default:
-    }
-    if(env.length && mod.length) {
-      addToQueue('scripts/' + env + '-' + mod + '.sh');
-    }
+    deliver(delivery, payload);
   });
 
   if(!running) {
@@ -116,8 +70,96 @@ var server = http.createServer(function (req, res) {
   res.write('\n\nthere are ' + queue.length + ' items in queue');
   res.write('\n' + queue.join(','));
   res.end();
+
+  delivery.delayed = (running === true);
   deliveries.push(delivery);
 });
+
+// make the delivery
+// @param {object} delivery (having an id)
+// @param {object} payload parsed payload package
+function deliver(delivery, payload) {
+  var repository = '';
+  var branch = '';
+  var sender = '';
+  var env = ''; // env4, env9
+  var mod = ''; // bo, cache, front, website
+  try {
+    // ref is the branch
+    // when it is a merge (or PR), the base_ref is what we need
+    // otherwise base_ref is null
+    branch = payload.base_ref || payload.ref;
+    repository = payload.repository.name;
+    sender = payload.sender.login;
+  } catch (e) {
+    console.log('payload not correctly parsed');
+    return false;
+  }
+
+  delivery.sender = sender;
+
+  var folders = getAffectedFolders(repository, branch);
+
+  switch (branch) {
+    case 'refs/heads/release-1.8.1':
+      env = 'env9';
+      break;
+    case 'refs/heads/release-1.7.3':
+      env = 'env3';
+      break;
+    case 'refs/heads/microsoft-dev':
+      env = 'env6';
+      break;
+    case 'refs/heads/salesforce':
+      env = 'env1';
+      break;
+    case 'refs/heads/master-dev':
+      env = 'envdevrow';
+      break;
+    default:
+  }
+
+  switch (repository) {
+    case 'client.videodesk.com':
+      mod = 'bo';
+      break;
+    case 'module':
+      mod = 'cache';
+      break;
+    case 'module-front':
+      mod = 'front';
+      break;
+    case 'front-demo':
+      mod = 'website';
+      break;
+    default:
+  }
+  if(env.length && mod.length) {
+    addToQueue('scripts/' + env + '-' + mod + '.sh');
+  }
+}
+
+
+function getAffectedFolders(repository, branch) {
+  var folders = [];
+  for (var i = 0; i < config.folders.length; i++) {
+    var env = config.root + '/' + config.folders[i];
+
+    for (var repo in config.repositories) {
+      if (config.repositories.hasOwnProperty(repo)) {
+        console.log(env + '/' + repo);
+        if (getbranches(env + '/' + repo) === branch) {
+          folders.push({
+            path: env + '/' + repo,
+            branch: branch, // is this needed?
+            repository: repository // is this needed?
+          });
+        }
+      }
+    }
+  }
+  return folders;
+}
 
 function log(error, stdout, stderr) {
   // sys.puts(stdout);

@@ -1,0 +1,26 @@
+{
+  "path": "/",
+  "root": "/",
+  "folders": [
+    "env1",
+    "env2",
+    "env3",
+    "env4",
+    "env5",
+    "env6",
+    "env7",
+    "env8",
+    "env9",
+    "env10",
+    "env11",
+    "envdevrow",
+    "envnext"
+  ],
+  "repositories": {
+    "bo": "client.videodesk.com",
+    "cache": "module",
+    "front": "module-front",
+    "website": "front-demo"
+    }
+  }
+}
