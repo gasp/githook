@@ -13,7 +13,7 @@ path=''
 while getopts "h?vf:" opt; do
   case "$opt" in
   h|\?)
-    echo vdk cache deploy script
+    echo vdk front deploy script
     echo usage:
     echo   bo.sh [-v] path
     echo   -v verbosity

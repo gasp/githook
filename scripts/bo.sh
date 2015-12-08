@@ -13,7 +13,7 @@ path=''
 while getopts "h?vf:" opt; do
   case "$opt" in
   h|\?)
-    echo BO deploy script
+    echo vdk bo deploy script
     echo usage:
     echo   bo.sh [-v] path
     echo   -v verbosity
@@ -42,3 +42,5 @@ php app/console cache:clear --env=dev --no-debug;
 php app/console cache:clear --env=prod --no-debug;
 php app/console assetic:dump --env=prod --no-debug;
 php app/console assets:install web
+
+echo 'flush all' | nc localhost 11211
