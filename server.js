@@ -8,7 +8,7 @@ var fs = require('fs');
 var http = require('http');
 
 var payload2json = require('./lib/payload2json');
-var getbranches = require('./lib/getbranches');
+var getlocalrepositories = require('./lib/getlocalrepositories');
 var repository2folder = require('./lib/repository2folder');
 var config = require('./config');
 
@@ -90,18 +90,18 @@ function deliver(delivery, payload) {
     repository = payload.repository.name;
     sender = payload.sender.login;
   } catch (e) {
-    console.log('payload not correctly parsed');
+    console.log('payload not correctly parsed', payload);
     return false;
   }
 
   delivery.sender = sender;
 
   var folders = getAffectedFolders(repository, branch);
-  console.log(getAffectedFolders, folders);
+  console.log('%d affected folders', folders.length);
   // queue for each folder
   for (var i = 0; i < folders.length; i++) {
      // folders[i].repo is bo, cache, front, website
-    console.log('addToQueue:' + 'scripts/' + mod + '.sh ' + folders[i].path);
+    console.log('addToQueue:' + 'scripts/' + folders[i].repo + '.sh ' + folders[i].path);
     addToQueue('scripts/' + folders[i].repo + '.sh ' + folders[i].path);
   }
 }
@@ -109,30 +109,20 @@ function deliver(delivery, payload) {
 // getAffectedFolders
 // within a list of folders, pick the ones that have the same repository
 // and the same branch, yet they should be updated
-// @param repository {string}
-// @param branch {string}
-// @return {object}.path {string} path of the repository instance
-// @return {object}.branch {string} name of the branch
-// @return {object}.repository {string} long repo name (?)
-// @return {object}.repo {string} short repo name
-function getAffectedFolders(repository, branch) {
+// @param repository {string} payload repository raw name (front-demo, module)
+// @param branch {string} payload branch name (master, master-dev)
+// @return {array of object}.path {string} path of the repository instance
+// @return {array of object}.branch {string} name of the branch
+// @return {array of object}.repository {string} long repo name (?)
+// @return {array of object}.repo {string} short repo name
+function getAffectedFolders(plrepository, plbranch) {
   var folders = [];
-  for (var i = 0; i < config.folders.length; i++) {
-    var env = config.root + '/' + config.folders[i];
+  var branches = getlocalrepositories(config);
 
-    for (var repo in config.repositories) {
-      if (config.repositories.hasOwnProperty(repo)) {
-
-        if (getbranches(config) === branch) {
-          console.log(getbranches(config), branch)
-          folders.push({
-            path: env + '/' + repo,
-            branch: branch, // is this needed?
-            repository: repository, // is this needed?
-            repo: repo // cute name
-          });
-        }
-      }
+  for (var i = 0; i < branches.length; i++) {
+    if (branches[i].repository === plrepository &&
+      branches[i].branch === plbranch) {
+        folders.push(branches[i]);
     }
   }
   return folders;

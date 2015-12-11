@@ -1,7 +1,7 @@
 {
   "path": "/",
-  "root": "/",
-  "folders": [
+  "root": "/Users/gaspard/VideoDesk/workplace",
+  "environments": [
     "env1",
     "env2",
     "env3",

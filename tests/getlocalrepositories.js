@@ -2,24 +2,25 @@
 
 'use strict';
 
-var getbranches = require('../lib/getbranches');
-var folders = [
-  'envlocal'
-];
-var repositories = {
-  'bo': 'client.videodesk.com',
-  'cache': 'module',
-  'front': 'module-front',
-  'website': 'front-demo'
+var getlocalrepositories = require('../lib/getlocalrepositories');
+var fakeConfig = {
+  root: '/Users/gaspard/VideoDesk/workplace/',
+  environments: [
+    'envlocal'
+  ],
+  repositories: {
+    'bo': 'client.videodesk.com',
+    'cache': 'module',
+    'front': 'module-front',
+    'website': 'front-demo'
+  }
 };
 
-describe('getbranches', function() {
-  var generatedTree = null;
-  getbranches('/Users/gaspard/VideoDesk/workplace/', folders, repositories, function (tree) {
-    generatedTree = tree;
-  });
+describe('getlocalrepositories', function() {
+  var generatedTree = getlocalrepositories(fakeConfig);
 
-  it('tests on my envllocal', function () {
+  it('tests on my envlocal', function () {
+    console.log(generatedTree);
     var result = [
       {
         path: '/Users/gaspard/VideoDesk/workplace/envlocal/bo',
