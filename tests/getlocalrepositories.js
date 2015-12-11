@@ -20,19 +20,18 @@ describe('getlocalrepositories', function() {
   var generatedTree = getlocalrepositories(fakeConfig);
 
   it('tests on my envlocal', function () {
-    console.log(generatedTree);
     var result = [
       {
         path: '/Users/gaspard/VideoDesk/workplace/envlocal/bo',
-        branch: 'release-1.8.2'
+        branch: 'whatever'
       },
       {
         path: '/Users/gaspard/VideoDesk/workplace/envlocal/cache',
-        branch: ['master']
+        branch: 'whatever'
       },
       {
         path: '/Users/gaspard/VideoDesk/workplace/envlocal/front',
-        branch: ['release-1.8.3']
+        branch: 'whatever'
       },
       {
         path: '/Users/gaspard/VideoDesk/workplace/envlocal/website',
@@ -44,6 +43,6 @@ describe('getlocalrepositories', function() {
     expect(generatedTree[2].path).toEqual(result[2].path);
     expect(generatedTree[3].path).toEqual(result[3].path);
     expect(generatedTree[3].branch).toEqual(result[3].branch);
-
+    expect(generatedTree[1].branch).not.toEqual(result[1].branch);
   });
 });
