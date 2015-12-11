@@ -123,8 +123,9 @@ function getAffectedFolders(repository, branch) {
 
     for (var repo in config.repositories) {
       if (config.repositories.hasOwnProperty(repo)) {
-        console.log(env + '/' + repo);
-        if (getbranches(env + '/' + repo) === branch) {
+
+        if (getbranches(config) === branch) {
+          console.log(getbranches(config), branch)
           folders.push({
             path: env + '/' + repo,
             branch: branch, // is this needed?
