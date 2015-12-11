@@ -21,6 +21,5 @@
     "cache": "module",
     "front": "module-front",
     "website": "front-demo"
-    }
   }
 }

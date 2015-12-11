@@ -15,7 +15,7 @@ var config = require('./config');
 var running = false;
 var queue = [];
 var port = 4004;
-var version = '0.2.11';
+var version = '0.2.12';
 var deliveries = [];
 
 var server = http.createServer(function (req, res) {
@@ -82,7 +82,6 @@ function deliver(delivery, payload) {
   var repository = '';
   var branch = '';
   var sender = '';
-  var env = ''; // env4, env9
   var mod = ''; // bo, cache, front, website
   try {
     // ref is the branch
@@ -99,47 +98,24 @@ function deliver(delivery, payload) {
   delivery.sender = sender;
 
   var folders = getAffectedFolders(repository, branch);
-
-  switch (branch) {
-    case 'refs/heads/release-1.8.1':
-      env = 'env9';
-      break;
-    case 'refs/heads/release-1.7.3':
-      env = 'env3';
-      break;
-    case 'refs/heads/microsoft-dev':
-      env = 'env6';
-      break;
-    case 'refs/heads/salesforce':
-      env = 'env1';
-      break;
-    case 'refs/heads/master-dev':
-      env = 'envdevrow';
-      break;
-    default:
-  }
-
-  switch (repository) {
-    case 'client.videodesk.com':
-      mod = 'bo';
-      break;
-    case 'module':
-      mod = 'cache';
-      break;
-    case 'module-front':
-      mod = 'front';
-      break;
-    case 'front-demo':
-      mod = 'website';
-      break;
-    default:
-  }
-  if(env.length && mod.length) {
-    addToQueue('scripts/' + env + '-' + mod + '.sh');
+  console.log(getAffectedFolders, folders);
+  // queue for each folder
+  for (var i = 0; i < folders.length; i++) {
+     // folders[i].repo is bo, cache, front, website
+    console.log('addToQueue:' + 'scripts/' + mod + '.sh ' + folders[i].path);
+    addToQueue('scripts/' + folders[i].repo + '.sh ' + folders[i].path);
   }
 }
 
-
+// getAffectedFolders
+// within a list of folders, pick the ones that have the same repository
+// and the same branch, yet they should be updated
+// @param repository {string}
+// @param branch {string}
+// @return {object}.path {string} path of the repository instance
+// @return {object}.branch {string} name of the branch
+// @return {object}.repository {string} long repo name (?)
+// @return {object}.repo {string} short repo name
 function getAffectedFolders(repository, branch) {
   var folders = [];
   for (var i = 0; i < config.folders.length; i++) {
@@ -152,7 +128,8 @@ function getAffectedFolders(repository, branch) {
           folders.push({
             path: env + '/' + repo,
             branch: branch, // is this needed?
-            repository: repository // is this needed?
+            repository: repository, // is this needed?
+            repo: repo // cute name
           });
         }
       }
@@ -173,6 +150,7 @@ function addToQueue(script) {
   runWhenAvailable();
 }
 
+// run a task
 function run() {
   if(queue.length < 1) {
     return false;

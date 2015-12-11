@@ -1,6 +1,6 @@
 {
   "name": "githook",
-  "version": "0.2.10",
+  "version": "0.2.12",
   "description": "videodesk webhook endpoint",
   "main": "server.js",
   "directories": {
