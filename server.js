@@ -14,7 +14,6 @@ var config = require('./config');
 
 var running = false;
 var queue = [];
-var port = 4004;
 var version = '0.2.12';
 var deliveries = [];
 
@@ -184,5 +183,4 @@ function runWhenAvailable() {
   run();
 }
 
-server.listen(port);
-console.log('listening on '+ port);
+module.exports = server;
