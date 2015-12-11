@@ -32,25 +32,30 @@ var options = {
   }
 };
 
-var req = http.request(options, function(res) {
-  // console.log('STATUS: ' + res.statusCode);
-  // console.log('HEADERS: ' + JSON.stringify(res.headers));
-  res.setEncoding('utf8');
-  res.on('data', function (chunk) {
-    // console.log('BODY: ' + chunk);
-  });
-  res.on('end', function() {
-    // console.log('No more data in response.');
-    server.close(function () {
-      console.log('server closed');
+describe('a delivery', function() {
+  it('connects to the server', function (done) {
+    var req = http.request(options, function(res) {
+      // console.log('STATUS: ' + res.statusCode);
+      // console.log('HEADERS: ' + JSON.stringify(res.headers));
+      res.setEncoding('utf8');
+      res.on('data', function (chunk) {
+        // console.log('BODY: ' + chunk);
+      });
+      res.on('end', function() {
+        // console.log('No more data in response.');
+        server.close(function () {
+          console.log('server closed');
+          done();
+        });
+      });
     });
+
+    req.on('error', function(e) {
+      console.log('problem with request: ' + e.message);
+    });
+
+    // write data to request body
+    req.write(postData);
+    req.end();
   });
 });
-
-req.on('error', function(e) {
-  console.log('problem with request: ' + e.message);
-});
-
-// write data to request body
-req.write(postData);
-req.end();
