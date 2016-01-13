@@ -1,6 +1,6 @@
 {
   "path": "/",
-  "root": "/Users/gaspard/VideoDesk/workplace",
+  "root": "/home/videodesk/www",
   "environments": [
     "env1",
     "env2",
