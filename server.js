@@ -14,7 +14,7 @@ var config = require('./config');
 
 var running = false;
 var queue = [];
-var version = '0.2.12';
+var version = require('./package').version;
 var deliveries = [];
 
 var server = http.createServer(function (req, res) {
@@ -109,20 +109,22 @@ function deliver(delivery, payload) {
 // getAffectedFolders
 // within a list of folders, pick the ones that have the same repository
 // and the same branch, yet they should be updated
-// @param repository {string} payload repository raw name (front-demo, module)
-// @param branch {string} payload branch name (master, master-dev)
+// @param plrepository {string} payload repository raw name (front-demo, module)
+// @param plbranch {string} payload branch name (master, master-dev)
 // @return {array of object}.path {string} path of the repository instance
 // @return {array of object}.branch {string} name of the branch
 // @return {array of object}.repository {string} long repo name (?)
 // @return {array of object}.repo {string} short repo name
 function getAffectedFolders(plrepository, plbranch) {
   var folders = [];
-  var branches = getlocalrepositories(config);
+  // TODO: store this and do not access file system at each query
+  // a timer would be a good idea, let's say 5 to 15 minutes
+  var repositories = getlocalrepositories(config);
 
-  for (var i = 0; i < branches.length; i++) {
-    if (branches[i].repository === plrepository &&
-      branches[i].branch === plbranch) {
-        folders.push(branches[i]);
+  for (var i = 0; i < repositories.length; i++) {
+    if (repositories[i].repository === plrepository &&
+      repositories[i].branch === plbranch) {
+        folders.push(repositories[i]);
     }
   }
   return folders;
