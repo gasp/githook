@@ -123,7 +123,7 @@ function getAffectedFolders(plrepository, plbranch) {
 
   for (var i = 0; i < repositories.length; i++) {
     if (repositories[i].repository === plrepository &&
-      repositories[i].branch === plbranch) {
+      repositories[i].head === plbranch) {
         folders.push(repositories[i]);
     }
   }
