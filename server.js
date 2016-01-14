@@ -115,15 +115,15 @@ function deliver(delivery, payload) {
 // @return {array of object}.branch {string} name of the branch
 // @return {array of object}.repository {string} long repo name (?)
 // @return {array of object}.repo {string} short repo name
-function getAffectedFolders(plrepository, plbranch) {
+function getAffectedFolders(plrepository, plhead) {
   var folders = [];
   // TODO: store this and do not access file system at each query
   // a timer would be a good idea, let's say 5 to 15 minutes
   var repositories = getlocalrepositories(config);
-
+  
   for (var i = 0; i < repositories.length; i++) {
     if (repositories[i].repository === plrepository &&
-      repositories[i].head === plbranch) {
+      repositories[i].head === plhead) {
         folders.push(repositories[i]);
     }
   }
