@@ -13,6 +13,7 @@ var repository2folder = require('./lib/repository2folder');
 var config = require('./config');
 
 var running = false;
+// array of tasks. Each task is an array of bash arguments
 var queue = [];
 var version = require('./package').version;
 var deliveries = [];
@@ -102,7 +103,10 @@ function deliver(delivery, payload) {
   for (var i = 0; i < folders.length; i++) {
      // folders[i].repo is bo, cache, front, website
     console.log('addToQueue:' + 'scripts/' + folders[i].repo + '.sh ' + folders[i].path);
-    addToQueue('scripts/' + folders[i].repo + '.sh ' + folders[i].path);
+    addToQueue([
+      __dirname + 'scripts/' + folders[i].repo + '.sh',
+      folders[i].path
+    ]);
   }
 }
 
@@ -120,7 +124,7 @@ function getAffectedFolders(plrepository, plhead) {
   // TODO: store this and do not access file system at each query
   // a timer would be a good idea, let's say 5 to 15 minutes
   var repositories = getlocalrepositories(config);
-  
+
   for (var i = 0; i < repositories.length; i++) {
     if (repositories[i].repository === plrepository &&
       repositories[i].head === plhead) {
@@ -147,11 +151,10 @@ function run() {
   if(queue.length < 1) {
     return false;
   }
-  var argument = [];
-  argument.push(queue.pop());
+  var args = queue.pop();
   console.log(new Date().toString());
-  console.log(' running ' + argument[0] + ', ' + queue.length + ' in queue');
-  var process = spawn('bash', argument);
+  console.log(' running ' + args[1] + ', ' + queue.length + ' in queue');
+  var process = spawn('bash', args);
   running = true;
   process.on('close', function (code) {
     console.log(new Date().toString());
