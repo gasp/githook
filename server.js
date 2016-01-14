@@ -104,7 +104,7 @@ function deliver(delivery, payload) {
      // folders[i].repo is bo, cache, front, website
     console.log('addToQueue:' + 'scripts/' + folders[i].repo + '.sh ' + folders[i].path);
     addToQueue([
-      __dirname + 'scripts/' + folders[i].repo + '.sh',
+      __dirname + '/scripts/' + folders[i].repo + '.sh',
       folders[i].path
     ]);
   }
