@@ -29,7 +29,10 @@ var server = http.createServer(function (req, res) {
   res.write('deliveries: ' + deliveries.length + '\n');
   res.write('queue: ' + queue.length + '\n');
   for (var i = 0; i < queue.length; i++) {
-    res.write(i + ': ' + queue[i][0] + '\n');
+    // regex from http://stackoverflow.com/questions/1818310/regular-expression-to-remove-a-files-extension
+    var script = queue[i][0].match(/([^:\\/]*?)(?:\.([^ :\\/.]*))?$/i)[1];
+    var env = queue[i][1].split('/')[queue[i][1].split('/').length -2];
+    res.write(i + ': ' + script + ' on ' + env +'\n');
   }
 
   res.write(req.method + ' ' + req.url + '\n');
