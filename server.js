@@ -28,8 +28,11 @@ var server = http.createServer(function (req, res) {
   res.write('hook ' + version + '!\n');
   res.write('deliveries: ' + deliveries.length + '\n');
   res.write('queue: ' + queue.length + '\n');
-  res.write(req.method + ' ' + req.url + '\n');
+  for (var i = 0; i < queue.length; i++) {
+    res.write(i + ': ' + queue[i][0] + '\n');
+  }
 
+  res.write(req.method + ' ' + req.url + '\n');
   if(req.method === 'GET' && req.url === '/') {
     res.end('This service is used for github webhooks');
     return;
