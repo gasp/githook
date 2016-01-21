@@ -95,13 +95,15 @@ function deliver(delivery, payload) {
     // otherwise base_ref is null
     branch = payload.base_ref || payload.ref;
     repository = payload.repository.name;
-    sender = payload.sender.login;
+    sender = payload.pusher.name || payload.sender.login || 'anonymous';
   } catch (e) {
     console.log('payload not correctly parsed', payload);
     return false;
   }
 
   delivery.sender = sender;
+  console.log('delivering "%s" - by %s',
+    payload.head_commit.message.match(/^.*$/m)[0], sender);
 
   var folders = getAffectedFolders(repository, branch);
   console.log('%d affected folders', folders.length);
