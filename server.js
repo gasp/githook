@@ -89,6 +89,7 @@ function deliver(delivery, payload) {
   var branch = '';
   var sender = '';
   var mod = ''; // bo, cache, front, website
+  var message = '[no head message]'; //push message
   try {
     // ref is the branch
     // when it is a merge (or PR), the base_ref is what we need
@@ -96,6 +97,9 @@ function deliver(delivery, payload) {
     branch = payload.base_ref || payload.ref;
     repository = payload.repository.name;
     sender = payload.pusher.name || payload.sender.login || 'anonymous';
+    if (payload.head_commit && payload.head_commit.message) {
+      message = payload.head_commit.message.match(/^.*$/m)[0];
+    }
   } catch (e) {
     console.log('payload not correctly parsed', payload);
     return false;
@@ -103,7 +107,7 @@ function deliver(delivery, payload) {
 
   delivery.sender = sender;
   console.log('delivering "%s" - by %s',
-    payload.head_commit.message.match(/^.*$/m)[0], sender);
+    , sender);
 
   var folders = getAffectedFolders(repository, branch);
   console.log('%d affected folders', folders.length);
