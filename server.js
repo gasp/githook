@@ -107,7 +107,7 @@ function deliver(delivery, payload) {
 
   delivery.sender = sender;
   console.log('delivering "%s" - by %s',
-    , sender);
+    message, sender);
 
   var folders = getAffectedFolders(repository, branch);
   console.log('%d affected folders', folders.length);
