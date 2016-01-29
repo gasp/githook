@@ -96,7 +96,7 @@ function deliver(delivery, payload) {
     // otherwise base_ref is null
     branch = payload.base_ref || payload.ref;
     repository = payload.repository.name;
-    sender = payload.pusher.name || payload.sender.login || 'anonymous';
+    sender = payload.sender.login || payload.pusher.name || 'anonymous';
     if (payload.head_commit && payload.head_commit.message) {
       message = payload.head_commit.message.match(/^.*$/m)[0];
     }
@@ -106,8 +106,7 @@ function deliver(delivery, payload) {
   }
 
   delivery.sender = sender;
-  console.log('delivering "%s" - by %s',
-    message, sender);
+  console.log('delivering "%s" - by %s', message, sender);
 
   var folders = getAffectedFolders(repository, branch);
   console.log('%d affected folders', folders.length);
