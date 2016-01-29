@@ -31,7 +31,7 @@ var server = http.createServer(function (req, res) {
   res.write('status: ' + (running? 'running' : 'idle') + '\n');
   if (running) {
     var cscript = current[0].match(/([^:\\/]*?)(?:\.([^ :\\/.]*))?$/i)[1];
-    var cenv = current[1].split('/')[queue[i][1].split('/').length -2];
+    var cenv = current[1].split('/')[current[1].split('/').length -2];
     res.write('-: ' + cscript + ' on ' + cenv +'\n');
   }
   res.write('deliveries: ' + deliveries.length + '\n');
