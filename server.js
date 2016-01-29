@@ -13,6 +13,8 @@ var repository2folder = require('./lib/repository2folder');
 var config = require('./config');
 
 var running = false;
+// chat command is currently running
+var current = [];
 // array of tasks. Each task is an array of bash arguments
 var queue = [];
 var version = require('./package').version;
@@ -26,6 +28,12 @@ var server = http.createServer(function (req, res) {
     return;
   }
   res.write('hook ' + version + '!\n');
+  res.write('status: ' + (running? 'running' : 'idle') + '\n');
+  if (running) {
+    var cscript = current[0].match(/([^:\\/]*?)(?:\.([^ :\\/.]*))?$/i)[1];
+    var cenv = current[1].split('/')[queue[i][1].split('/').length -2];
+    res.write('-: ' + cscript + ' on ' + cenv +'\n');
+  }
   res.write('deliveries: ' + deliveries.length + '\n');
   res.write('queue: ' + queue.length + '\n');
   for (var i = 0; i < queue.length; i++) {
@@ -176,6 +184,7 @@ function run() {
   console.log(' running ' + args[1] + ', ' + queue.length + ' in queue');
   var process = spawn('bash', args);
   running = true;
+  current = args;
   process.on('close', function (code) {
     console.log(new Date().toString());
     console.log('child process exited with code ' + code);
