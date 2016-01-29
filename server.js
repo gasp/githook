@@ -171,9 +171,6 @@ function addToQueue(command) {
 
 // run a task
 function run() {
-  if(queue.length < 1) {
-    return false;
-  }
   var args = queue.shift();
   console.log(new Date().toString());
   console.log(' running ' + args[1] + ', ' + queue.length + ' in queue');
