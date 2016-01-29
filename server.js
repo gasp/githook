@@ -113,11 +113,14 @@ function deliver(delivery, payload) {
   // queue for each folder
   for (var i = 0; i < folders.length; i++) {
      // folders[i].repo is bo, cache, front, website
-    console.log('addToQueue:' + 'scripts/' + folders[i].repo + '.sh ' + folders[i].path);
-    addToQueue([
+    var command = [
       __dirname + '/scripts/' + folders[i].repo + '.sh',
       folders[i].path
-    ]);
+    ];
+    if (findInQueue(command) === false) {
+      console.log('addToQueue:' + command[0] + ' ' + command[1]);
+      addToQueue(command);
+    }
   }
 }
 
@@ -152,8 +155,17 @@ function log(error, stdout, stderr) {
   });
 }
 
-function addToQueue(script) {
-  queue.push(script);
+function findInQueue(command) {
+  for (var i = 0; i < queue.length; i++) {
+    if (queue[i][0] === command[0] && queue[i][1] === command[1]) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function addToQueue(command) {
+  queue.push(command);
   runWhenAvailable();
 }
 
