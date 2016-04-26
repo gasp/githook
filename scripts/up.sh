@@ -9,11 +9,11 @@ linkToRootDir="$(pwd)"
 linkToFrontDir=$linkToRootDir'/front'
 linkToBoDir=$linkToRootDir'/bo'
 if [ ! -d "$linkToFrontDir" ]; then
-	echo "Error: Front folder doesn't exist ! (at $linkToFrontDir)"
+	echo -e "\e[91mError: Front folder doesn't exist ! (at $linkToFrontDir)\e[0m"
 	exit 1;
 fi
 if [ ! -d "$linkToBoDir" ]; then
-	echo "Error: Bo folder doesn't exist ! (at $linkToBoDir)"
+	echo -e "\e[91mError: Bo folder doesn't exist ! (at $linkToBoDir)\e[0m"
 	exit 1;
 fi
 
@@ -22,7 +22,7 @@ fi
 cd $linkToFrontDir
 	branchfront=`git rev-parse --abbrev-ref HEAD`
 	if ! echo "$branchfront" | grep -q "release"; then
-		echo "Error: Not a release branch, Front on $branchfront"
+		echo -e "\e[91mError: Not a release branch, Front on $branchfront\e[0m"
 		exit 1;
 	fi
 	
@@ -31,7 +31,7 @@ cd $linkToFrontDir
 cd $linkToBoDir
 	branchbo=`git rev-parse --abbrev-ref HEAD`
 	if ! echo "$branchbo" | grep -q "release"; then
-		echo "Error: Not a release branch, Bo on $branchbo"
+		echo -e "\e[91mError: Not a release branch, Bo on $branchbo\e[0m"
 		exit 1;
 	fi
 
@@ -71,18 +71,26 @@ fi
 cd $linkToFrontDir
 	########################################################
 	#Backup
+	echo -e "\e[7mfetch\e[27m"
 	git fetch --quiet
+	echo -e "\e[7mcheckout master\e[27m"
 	git checkout master
+	echo -e "\e[7mpull\e[27m"
 	git pull
+	echo -e "\e[7mtag old version\e[27m"
 	git tag -a v$oldversion -m "auto tag $oldversion"
+	echo -e "\e[7mpush\e[27m"
 	git push origin v$oldversion
 	
 	########################################################
 	# sync branch master-dev with master and last release deployed
+	echo -e "\e[7mcheckout master-dev\e[27m"
 	git checkout master-dev
+	echo -e "\e[7mpull\e[27m"
 	git pull
 	
 		# merge master back into master-dev
+		echo -e "\e[7mmerge master\e[27m"
 		git merge --no-ff --no-edit master
 			# --no-ff create a merge commit even when the merge resolves as a fast-forward
 			# --no-edit accept the auto-generated message
@@ -95,6 +103,7 @@ cd $linkToFrontDir
 		fi
 		
 		# merge lasrt release deployed into master-dev
+		echo -e "\e[7mmerge old release\e[27m"
 		git merge --no-ff --no-edit release-$oldversion
 			# in case of strange things, also gather the old branch,
 			# to avoid loosing commits on the wrong branch
@@ -113,12 +122,16 @@ cd $linkToFrontDir
 
 	########################################################
 	# create new release-1.8.xx from master-dev
+	echo -e "\e[7mfetch\e[27m"
 	git fetch --quiet
+	echo -e "\e[7mgulp bump\e[27m"
 	gulp bump;
 	newversion=`node -e "console.log(require('./package.json').version);"`
+	echo -e "\e[7mcheckout -b new version\e[27m"
 	git checkout -b "release-$newversion"
 	git add package.json
 	git commit -m "bumping version to $newversion";
+	echo -e "\e[7mpush\e[27m"
 	git push;
 	# this will do a deploy by githook
 	
@@ -129,6 +142,7 @@ echo "front released"
 
 	########################################################
 	# deploy front
+	echo -e "\e[7mdeploy front\e[27m"
 	./deploy.sh
 
 ############################################################
@@ -143,18 +157,26 @@ cd $linkToBoDir
 
 	########################################################
 	#Backup
+	echo -e "\e[7mfetch bo\e[27m"
 	git fetch --quiet
+	echo -e "\e[7mcheckout master\e[27m"
 	git checkout master
+	echo -e "\e[7mpull\e[27m"
 	git pull
+	echo -e "\e[7mtag old version\e[27m"
 	git tag -a v$oldversion -m "auto tag $oldversion"
+	echo -e "\e[7mpush\e[27m"
 	git push origin v$oldversion
 	
 	########################################################
 	# sync branch master-dev with master and last release deployed
+	echo -e "\e[7mcheckout master-dev\e[27m"
 	git checkout master-dev
+	echo -e "\e[7mpull\e[27m"
 	git pull
 	
 		# merge master back into master-dev
+		echo -e "\e[7mmerge master\e[27m"
 		git merge --no-ff --no-edit master
 			# --no-ff create a merge commit even when the merge resolves as a fast-forward
 			# --no-edit accept the auto-generated message
@@ -167,6 +189,7 @@ cd $linkToBoDir
 		fi
 		
 		# merge lasrt release deployed into master-dev
+		echo -e "\e[7mmerge old release\e[27m"
 		git merge --no-ff --no-edit release-$oldversion
 			# in case of strange things, also gather the old branch,
 			# to avoid loosing commits on the wrong branch
@@ -185,8 +208,11 @@ cd $linkToBoDir
 	
 	########################################################
 	## create new release-1.8.xx from master-dev
+	echo -e "\e[7mfetch\e[27m"
 	git fetch --quiet
+	echo -e "\e[7mcheckout -b new release\e[27m"
 	git checkout -b "release-$newversion"
+	echo -e "\e[7mpush\e[27m"
 	git push;
 	
 ############################################################
@@ -197,6 +223,7 @@ echo "bo released"
 	########################################################
 	#Bo deploy 
 	cd VideoDesk/Symfony/
+	echo -e "\e[7mdeploy bo\e[27m"
 	bin/deploy_dev.sh
 	
 ############################################################
@@ -207,4 +234,4 @@ echo "bo deployed"
 ############################################################
 # BREAKPOINT, (bo and front) new release ready !
 ############################################################
-echo "ALL DONE !"
+echo -e "\e[32mALL DONE !\e[0m"
