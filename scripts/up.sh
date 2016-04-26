@@ -132,7 +132,7 @@ cd $linkToFrontDir
 	git add package.json
 	git commit -m "bumping version to $newversion";
 	echo -e "\e[7mpush\e[27m"
-	git push;
+	git push origin "release-$newversion";
 	# this will do a deploy by githook
 	
 ############################################################
@@ -213,7 +213,7 @@ cd $linkToBoDir
 	echo -e "\e[7mcheckout -b new release\e[27m"
 	git checkout -b "release-$newversion"
 	echo -e "\e[7mpush\e[27m"
-	git push;
+	git push origin "release-$newversion";
 	
 ############################################################
 # BREAKPOINT, bo, new branch release created
