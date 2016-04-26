@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Deploy last release
+# Deploy release n+1
 # on Bo and Front
 
 ############################################################
@@ -41,15 +41,15 @@ if [ "$branchbo" = "$branchfront" ]
 then
     echo " > Currently [$branchbo]";
 else
-    echo 'Release branch does not match';
-    echo " > Bo: $branchbo";
-    echo " > Front: $branchfront";
+    echo -e "\e[91mRelease branch does not match\e[0m";
+    echo -e "\e[91m > Bo: $branchbo\e[0m";
+    echo -e "\e[91m > Front: $branchfront\e[0m";
     exit 1; # throw an error code
 fi
 
 ############################################################
 #Get release version id
-oldversion=${branchbo##*-}
+currentversion=${branchbo##*-}
 
 ############################################################
 #Last release version ?
@@ -78,9 +78,9 @@ cd $linkToFrontDir
 	echo -e "\e[7mpull\e[27m"
 	git pull
 	echo -e "\e[7mtag old version\e[27m"
-	git tag -a v$oldversion -m "auto tag $oldversion"
+	git tag -a v$currentversion -m "auto tag $currentversion"
 	echo -e "\e[7mpush\e[27m"
-	git push origin v$oldversion
+	git push origin v$currentversion
 	
 	########################################################
 	# sync branch master-dev with master and last release deployed
@@ -98,13 +98,13 @@ cd $linkToFrontDir
 		# check unmerged files (if conflicts)
 		hasConflict="$(git ls-files -u)"
 		if [ ! "$hasConflict" = "" ]; then
-			echo 'Conflicts ! (front, master-dev with master)'
+			echo  -e "\e[91mConflicts ! (front, master-dev with master)\e[0m"
 			exit 1;
 		fi
 		
 		# merge lasrt release deployed into master-dev
 		echo -e "\e[7mmerge old release\e[27m"
-		git merge --no-ff --no-edit release-$oldversion
+		git merge --no-ff --no-edit release-$currentversion
 			# in case of strange things, also gather the old branch,
 			# to avoid loosing commits on the wrong branch
 			# yes, this is a serge-specific feature
@@ -112,7 +112,7 @@ cd $linkToFrontDir
 		# check unmerged files (if conflicts)
 		hasConflict="$(git ls-files -u)"
 		if [ ! "$hasConflict" = "" ]; then
-			echo 'Conflicts ! (front, master-dev with last release)'
+			echo -e "\e[91mConflicts ! (front, master-dev with last release)\e[0m"
 			exit 1;
 		fi
 		
@@ -124,21 +124,31 @@ cd $linkToFrontDir
 	# create new release-1.8.xx from master-dev
 	echo -e "\e[7mfetch\e[27m"
 	git fetch --quiet
+
+	    # valid gulp.package.json version with current release
+        currentPackageversion=`node -e "console.log(require('./package.json').version);"`
+        if [ ! "$currentPackageversion" = "$currentversion" ]; then
+            echo -e "\e[91mRelease branch does not match with Front gulp package.json version\e[0m";
+            echo -e "\e[91m > release: $currentversion\e[0m";
+            echo -e "\e[91m > (package.json).version: $currentPackageversion\e[0m";
+            exit 1; # throw an error code
+        fi
+
 	echo -e "\e[7mgulp bump\e[27m"
 	gulp bump;
-	newversion=`node -e "console.log(require('./package.json').version);"`
+	nextversion=`node -e "console.log(require('./package.json').version);"`
 	echo -e "\e[7mcheckout -b new version\e[27m"
-	git checkout -b "release-$newversion"
+	git checkout -b "release-$nextversion"
 	git add package.json
-	git commit -m "bumping version to $newversion";
+	git commit -m "bumping version to $nextversion";
 	echo -e "\e[7mpush\e[27m"
-	git push origin "release-$newversion";
+	git push origin "release-$nextversion";
 	# this will do a deploy by githook
 	
 ############################################################
 # BREAKPOINT, front, new branch release created
 ############################################################
-echo "front released"
+echo -e "\e[42mfront released\e[0m"
 
 	########################################################
 	# deploy front
@@ -148,7 +158,7 @@ echo "front released"
 ############################################################
 # BREAKPOINT, front, new branch release deployed
 ############################################################
-echo "front deployed"
+echo -e "\e[42mfront deployed\e[0m";
 
 
 ############################################################
@@ -164,9 +174,9 @@ cd $linkToBoDir
 	echo -e "\e[7mpull\e[27m"
 	git pull
 	echo -e "\e[7mtag old version\e[27m"
-	git tag -a v$oldversion -m "auto tag $oldversion"
+	git tag -a v$currentversion -m "auto tag $currentversion"
 	echo -e "\e[7mpush\e[27m"
-	git push origin v$oldversion
+	git push origin v$currentversion
 	
 	########################################################
 	# sync branch master-dev with master and last release deployed
@@ -184,13 +194,13 @@ cd $linkToBoDir
 		# check unmerged files (if conflicts)
 		hasConflict="$(git ls-files -u)"
 		if [ ! "$hasConflict" = "" ]; then
-			echo 'Conflicts ! (front, master-dev with master)'
+			echo -e "\e[91mConflicts ! (front, master-dev with master)\e[0m";
 			exit 1;
 		fi
 		
 		# merge lasrt release deployed into master-dev
 		echo -e "\e[7mmerge old release\e[27m"
-		git merge --no-ff --no-edit release-$oldversion
+		git merge --no-ff --no-edit release-$currentversion
 			# in case of strange things, also gather the old branch,
 			# to avoid loosing commits on the wrong branch
 			# yes, this is a serge-specific feature
@@ -198,7 +208,7 @@ cd $linkToBoDir
 		# check unmerged files (if conflicts)
 		hasConflict="$(git ls-files -u)"
 		if [ ! "$hasConflict" = "" ]; then
-			echo 'Conflicts ! (front, master-dev with last release)'
+			echo -e "\e[91mConflicts ! (front, master-dev with last release)\e[0m";
 			exit 1;
 		fi
 		
@@ -211,14 +221,14 @@ cd $linkToBoDir
 	echo -e "\e[7mfetch\e[27m"
 	git fetch --quiet
 	echo -e "\e[7mcheckout -b new release\e[27m"
-	git checkout -b "release-$newversion"
+	git checkout -b "release-$nextversion"
 	echo -e "\e[7mpush\e[27m"
-	git push origin "release-$newversion";
+	git push origin "release-$nextversion";
 	
 ############################################################
 # BREAKPOINT, bo, new branch release created
 ############################################################
-echo "bo released"
+echo -e "\e[42mbo released\e[0m"
 
 	########################################################
 	#Bo deploy 
@@ -229,7 +239,7 @@ echo "bo released"
 ############################################################
 # BREAKPOINT, bo, new branch release deployed
 ############################################################
-echo "bo deployed"
+echo -e "\e[42mbo deployed\e[0m"
 
 ############################################################
 # BREAKPOINT, (bo and front) new release ready !
