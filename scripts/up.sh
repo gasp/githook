@@ -150,17 +150,6 @@ cd $linkToFrontDir
 ############################################################
 echo -e "\e[42mfront released\e[0m"
 
-	########################################################
-	# deploy front
-	echo -e "\e[7mdeploy front\e[27m"
-	./deploy.sh
-
-############################################################
-# BREAKPOINT, front, new branch release deployed
-############################################################
-echo -e "\e[42mfront deployed\e[0m";
-
-
 ############################################################
 #Bo side 
 cd $linkToBoDir
@@ -230,6 +219,17 @@ cd $linkToBoDir
 ############################################################
 echo -e "\e[42mbo released\e[0m"
 
+############################################################
+# A break to read git response before deployment :)
+echo -n 'Start deployment ? (press y [like Yes] to continue, other key will quit): '
+read keykey
+echo $keykey
+if [ ! "$keykey" = "y" ]; then
+	echo 'Bye'
+	exit 1;
+fi
+############################################################
+
 	########################################################
 	#Bo deploy 
 	cd VideoDesk/Symfony/
@@ -240,6 +240,19 @@ echo -e "\e[42mbo released\e[0m"
 # BREAKPOINT, bo, new branch release deployed
 ############################################################
 echo -e "\e[42mbo deployed\e[0m"
+
+
+cd $linkToFrontDir
+	########################################################
+	# deploy front
+	echo -e "\e[7mdeploy front\e[27m"
+	./deploy.sh
+
+############################################################
+# BREAKPOINT, front, new branch release deployed
+############################################################
+echo -e "\e[42mfront deployed\e[0m";
+
 
 ############################################################
 # BREAKPOINT, (bo and front) new release ready !
