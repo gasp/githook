@@ -132,15 +132,17 @@ function deliver(delivery, payload) {
   }
 }
 
-// getAffectedFolders
-// within a list of folders, pick the ones that have the same repository
-// and the same branch, yet they should be updated
-// @param plrepository {string} payload repository raw name (front-demo, module)
-// @param plbranch {string} payload branch name (master, master-dev)
-// @return {array of object}.path {string} path of the repository instance
-// @return {array of object}.branch {string} name of the branch
-// @return {array of object}.repository {string} long repo name (?)
-// @return {array of object}.repo {string} short repo name
+/**
+ *  getAffectedFolders
+ *  within a list of folders, pick the ones that have the same repository
+ *  and the same branch, yet they should be updated
+ *  @param plrepository {string} payload repository raw name (front-demo, module)
+ *  @param plbranch {string} payload branch name (master, master-dev)
+ *  @return {array of object}.path {string} path of the repository instance
+ *  @return {array of object}.branch {string} name of the branch
+ *  @return {array of object}.repository {string} long repo name (?)
+ *  @return {array of object}.repo {string} short repo name
+ */
 function getAffectedFolders(plrepository, plhead) {
   var folders = [];
   // TODO: store this and do not access file system at each query
