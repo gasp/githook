@@ -47,13 +47,24 @@ else
 	exit 1; # throw an error code
 fi
 
+# check that package.json and git release branch versions match
+cd $linkToFrontDir
+currentFrontGitVersion=${branchfront##*-}
+currentFrontPackageVersion=`node -e "console.log(require('./package.json').version);"`
+if [ ! "$currentFrontPackageVersion" = "$currentFrontGitVersion" ]; then
+	echo -e "\e[91mRelease branch does not match with front package.json version\e[0m";
+	echo -e "\e[91m > release: $currentFrontGitVersion\e[0m";
+	echo -e "\e[91m > package.json version: $currentFrontPackageVersion\e[0m";
+	exit 1; # throw an error code
+fi
+
 ############################################################
 #Get release version id
 currentversion=${branchbo##*-}
 
 ############################################################
 #Last release version ?
-echo -n 'This is the last release version ? (press y [like Yes] to continue, other key will quit): '
+echo -n 'is it the last release version ? (press y [like Yes] to continue, other key will quit): '
 read key
 echo $key
 if [ ! "$key" = "y" ]; then
@@ -124,15 +135,6 @@ cd $linkToFrontDir
 	# create new release-1.8.xx from master-dev
 	echo -e "\e[7mfetch\e[27m"
 	git fetch --quiet
-
-	# valid gulp.package.json version with current release
-	currentPackageversion=`node -e "console.log(require('./package.json').version);"`
-	if [ ! "$currentPackageversion" = "$currentversion" ]; then
-		echo -e "\e[91mRelease branch does not match with Front gulp package.json version\e[0m";
-		echo -e "\e[91m > release: $currentversion\e[0m";
-		echo -e "\e[91m > (package.json).version: $currentPackageversion\e[0m";
-		exit 1; # throw an error code
-	fi
 
 	echo -e "\e[7mgulp bump\e[27m"
 	gulp bump;
