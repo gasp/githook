@@ -36,17 +36,6 @@ if ! echo "$branchbo" | grep -q "release"; then
 	exit 1;
 fi
 
-# check that branches are aligned
-if [ "$branchbo" = "$branchfront" ]
-then
-	echo " > environnment is currently running [$branchbo]";
-else
-	echo -e "\e[91mRelease branch does not match\e[0m";
-	echo -e "\e[91m > Bo: $branchbo\e[0m";
-	echo -e "\e[91m > Front: $branchfront\e[0m";
-	exit 1; # throw an error code
-fi
-
 # check that package.json and git release branch versions match
 cd $linkToFrontDir
 currentFrontGitVersion=${branchfront##*-}
@@ -55,6 +44,17 @@ if [ ! "$currentFrontPackageVersion" = "$currentFrontGitVersion" ]; then
 	echo -e "\e[91mRelease branch does not match with front package.json version\e[0m";
 	echo -e "\e[91m > release: $currentFrontGitVersion\e[0m";
 	echo -e "\e[91m > package.json version: $currentFrontPackageVersion\e[0m";
+	exit 1; # throw an error code
+fi
+
+# check that branches are aligned
+if [ "$branchbo" = "$branchfront" ]
+then
+	echo -e " > environnment is currently running \e[7m $branchbo \e[27m";
+else
+	echo -e "\e[91mRelease branch does not match\e[0m";
+	echo -e "\e[91m > Bo: $branchbo\e[0m";
+	echo -e "\e[91m > Front: $branchfront\e[0m";
 	exit 1; # throw an error code
 fi
 
