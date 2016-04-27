@@ -4,10 +4,15 @@
 # on Bo and Front
 
 ############################################################
-#settings links
+# setting links
 linkToRootDir="$(pwd)"
 linkToFrontDir=$linkToRootDir'/front'
 linkToBoDir=$linkToRootDir'/bo'
+
+############################################################
+# pre-check if environment looks fine
+
+# check that folders exist
 if [ ! -d "$linkToFrontDir" ]; then
 	echo -e "\e[91mError: Front folder doesn't exist ! (at $linkToFrontDir)\e[0m"
 	exit 1;
@@ -17,29 +22,24 @@ if [ ! -d "$linkToBoDir" ]; then
 	exit 1;
 fi
 
-############################################################
-#Front side branch version
+# check that environment is running release branches
 cd $linkToFrontDir
-	branchfront=`git rev-parse --abbrev-ref HEAD`
-	if ! echo "$branchfront" | grep -q "release"; then
-		echo -e "\e[91mError: Not a release branch, Front on $branchfront\e[0m"
-		exit 1;
-	fi
-
-############################################################
-#Bo side branch version
+branchfront=`git rev-parse --abbrev-ref HEAD`
+if ! echo "$branchfront" | grep -q "release"; then
+	echo -e "\e[91mError: Not a release branch, Front on $branchfront\e[0m"
+	exit 1;
+fi
 cd $linkToBoDir
-	branchbo=`git rev-parse --abbrev-ref HEAD`
-	if ! echo "$branchbo" | grep -q "release"; then
-		echo -e "\e[91mError: Not a release branch, Bo on $branchbo\e[0m"
-		exit 1;
-	fi
+branchbo=`git rev-parse --abbrev-ref HEAD`
+if ! echo "$branchbo" | grep -q "release"; then
+	echo -e "\e[91mError: Not a release branch, Bo on $branchbo\e[0m"
+	exit 1;
+fi
 
-############################################################
-#Validation release version
+# check that branches are aligned
 if [ "$branchbo" = "$branchfront" ]
 then
-	echo " > Currently [$branchbo]";
+	echo " > environnment is currently running [$branchbo]";
 else
 	echo -e "\e[91mRelease branch does not match\e[0m";
 	echo -e "\e[91m > Bo: $branchbo\e[0m";
@@ -82,15 +82,15 @@ fi
 cd $linkToFrontDir
 	########################################################
 	#Backup
-	echo -e "\e[7mfetch\e[27m"
+	echo -e "\e[7m git fetch\e[27m"
 	git fetch --quiet
-	echo -e "\e[7mcheckout master\e[27m"
+	echo -e "\e[7m git checkout master\e[27m"
 	git checkout master
-	echo -e "\e[7mpull\e[27m"
-	git pull
-	echo -e "\e[7mtag old version\e[27m"
+	echo -e "\e[7m git pull origin master\e[27m"
+	git pull origin master
+	echo -e "\e[7m git tag old version\e[27m"
 	git tag -a v$currentversion -m "auto tag $currentversion"
-	echo -e "\e[7mpush\e[27m"
+	echo -e "\e[7m git push tag\e[27m"
 	git push origin v$currentversion
 
 	########################################################
