@@ -224,7 +224,7 @@ echo -e "\e[42mbo released\e[0m"
 # Deployment
 
 # A break to read git response before deployment :)
-echo ' > ready to deploy release-$nextversion on front and bo';
+echo " > ready to deploy release-$nextversion on front and bo";
 echo -n 'Start deployment ? (press y [like Yes] to continue, other key will quit): '
 read keykey
 echo $keykey
@@ -247,6 +247,7 @@ echo -e "\e[7mdeploy front\e[27m"
 echo -e "\e[42mfront deployed\e[0m";
 
 # (bo and front) new release ready !
-echo ' > bo is now running release-$nextversion'
-echo ' > front is now running release-$nextversion'
+echo " > bo is now running release-$nextversion";
+echo " > front is now running release-$nextversion";
 echo -e "\e[32mALL DONE !\e[0m"
+date +%Y-%m-%d:%H:%M:%S
