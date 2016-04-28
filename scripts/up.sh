@@ -4,6 +4,15 @@
 # on Bo and Front
 
 ############################################################
+# check location, script work with env next
+if [ ! -d "/home/videodesk/www/envnext/" ]; then
+    echo -e "\e[91mHum.... /home/videodesk/www/envnext/ not found !\e[0m";
+    exit 1;
+fi
+
+cd /home/videodesk/www/envnext
+
+############################################################
 # setting links
 linkToRootDir="$(pwd)"
 linkToFrontDir=$linkToRootDir'/front'
