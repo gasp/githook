@@ -251,6 +251,8 @@ echo -e "\e[7mdeploy bo\e[27m"
 bin/deploy_dev.sh
 echo -e "\e[42mbo deployed\e[0m"
 app/console videodesk:version:upgrade --release
+git commit -m "up release version to $nextversion";
+git push origin "release-$nextversion";
 echo -e "\e[42mUp version project\e[0m"
 
 # deploy front
