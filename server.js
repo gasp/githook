@@ -133,6 +133,45 @@ function deliver(delivery, payload) {
 }
 
 /**
+ * perform actions on script start
+ */
+function start() {
+  // refresh (fetch and prune) all repos
+  function fetchAndPruneAll() {
+    for (var i = 0; i < config.environments.length; i++) {
+      for (var repo in config.repositories) {
+        if (config.repositories.hasOwnProperty(repo)) {
+          var command = [
+            __dirname + '/scripts/refresh.sh',
+            config.root + '/' + config.environments[i] + '/' + repo
+          ];
+          addToQueue(command);
+        }
+      }
+    }
+  }
+  // deploy all repos
+  function deloyAll() {
+    // deploy all
+    for (var i = 0; i < config.environments.length; i++) {
+      for (var repo in config.repositories) {
+        if (config.repositories.hasOwnProperty(repo)) {
+          var command = [
+            __dirname + '/scripts/' + repo + '.sh',
+            config.root + '/' + config.environments[i] + '/' + repo
+          ];
+          addToQueue(command);
+        }
+      }
+    }
+  }
+
+  fetchAndPruneAll();
+  deloyAll();
+
+}
+
+/**
  *  getAffectedFolders
  *  within a list of folders, pick the ones that have the same repository
  *  and the same branch, yet they should be updated
@@ -209,4 +248,6 @@ function runWhenAvailable() {
   run();
 }
 
+// start the maintenance tasks (refresh, and deploy all)
+start();
 module.exports = server;
