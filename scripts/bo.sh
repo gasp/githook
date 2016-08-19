@@ -43,4 +43,4 @@ php app/console cache:clear --env=prod --no-debug;
 php app/console assetic:dump --env=prod --no-debug;
 php app/console assets:install web
 
-echo 'flush all' | nc localhost 11211
+echo 'flush_all' | nc localhost 11211
