@@ -1,0 +1,9 @@
+[
+  {
+    "name": "hook",
+    "cwd": "/home/videodesk/githook",
+    "script": "app.js",
+    "exec_mode": "fork",
+    "ignore_watch": ["node_modules"]
+  }
+]
