@@ -3,7 +3,6 @@
  */
 
 var queueing = require('../../lib/queueing.js');
-var sinon = require('sinon');
 
 describe('a queueing tests suite', function () {
 
@@ -66,14 +65,14 @@ describe('a queueing tests suite', function () {
   });
 
   it('is an event when enqueue', function () {
-    var spy = sinon.spy();
+    var spy = jasmine.createSpy('spy');
     queueing.on('enqueue', spy);
 
     var el = ['script-e', 'folder-e'];
     queueing.enqueue(el);
 
-    sinon.assert.calledOnce(spy);
-    sinon.assert.calledWith(spy, el);
+    expect(spy.calls.count()).toEqual(1);
+    expect(spy).toHaveBeenCalledWith(el);
   });
 
   it('is an event when next method call', function () {
@@ -81,13 +80,13 @@ describe('a queueing tests suite', function () {
     var el = ['script-e', 'folder-e'];
     queueing.enqueue(el);
 
-    var spy = sinon.spy();
+    var spy = jasmine.createSpy('spy');
     queueing.on('next', spy);
 
     queueing.next();
 
-    sinon.assert.calledOnce(spy);
-    sinon.assert.calledWith(spy, el);
+    expect(spy).toHaveBeenCalled();
+    expect(spy).toHaveBeenCalledWith(el);
   });
 
   it('is nothing in queue', function () {
