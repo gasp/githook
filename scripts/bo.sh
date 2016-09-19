@@ -37,7 +37,22 @@ cd $path
 git pull
 git status
 cd VideoDesk/Symfony
-sh bin/deploy_dev.sh
+bash bin/deploy_dev.sh
+rc=$?;
+
+
+
+
+if [[ $rc != 0 ]];
+  then
+    echo 'error ||||||||||||||||||||||||||||';
+    echo 'bin/deploy_dev.sh exited with code';
+    echo $rc;
+    sleep 60;
+    # fail with error code
+    exit $rc;
+fi
+
 php app/console cache:clear --env=dev --no-debug;
 php app/console cache:clear --env=prod --no-debug;
 php app/console assetic:dump --env=prod --no-debug;
