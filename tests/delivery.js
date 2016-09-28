@@ -4,7 +4,7 @@
 // and tests it with a fake delivery payload
 
 var http = require('http');
-var server = require('../server');
+var server = require('../lib/server');
 var port = 4003;
 
 server.listen(port);

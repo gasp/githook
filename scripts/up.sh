@@ -155,8 +155,22 @@ cd $linkToFrontDir
 	git add package.json
 	git commit -m "bumping version to $nextversion";
 	echo -e "\e[7mpush\e[27m"
+
+	## push new branch
 	git push origin "release-$nextversion";
-	# this will do a deploy by githook
+
+	## merge new branch with new version on master-dev
+	git checkout master-dev
+	git merge --no-ff --no-edit release-$nextversion
+	    hasConflict="$(git ls-files -u)"
+		if [ ! "$hasConflict" = "" ]; then
+			echo  -e "\e[91mConflicts ! (front, master-dev with master)\e[0m"
+			exit 1;
+		fi
+	git push origin master-dev;
+
+	##return on new branch release
+	git checkout release-$nextversion
 
 ############################################################
 # BREAKPOINT, front, new branch release created
@@ -227,7 +241,30 @@ cd $linkToBoDir
 	echo -e "\e[7mcheckout -b new release\e[27m"
 	git checkout -b "release-$nextversion"
 	echo -e "\e[7mpush\e[27m"
-	git push origin "release-$nextversion";
+
+    ## up version
+    cd VideoDesk/Symfony/
+    app/console videodesk:version:upgrade --release
+    git add VideoDesk/Symfony/app/config/version.yml
+    git commit -m "up release version to $nextversion";
+    git push origin "release-$nextversion";
+    echo -e "\e[42mUp version project\e[0m"
+
+    ## push new branch
+    git push origin "release-$nextversion";
+
+    ## merge new branch with new version on master-dev
+	git checkout master-dev
+	git merge --no-ff --no-edit release-$nextversion
+	    hasConflict="$(git ls-files -u)"
+		if [ ! "$hasConflict" = "" ]; then
+			echo  -e "\e[91mConflicts ! (front, master-dev with master)\e[0m"
+			exit 1;
+		fi
+	git push origin master-dev;
+
+	##return on new branch release
+	git checkout release-$nextversion
 
 ############################################################
 # BREAKPOINT, bo, new branch release created
@@ -248,25 +285,18 @@ if [ ! "$keykey" = "y" ]; then
 	exit 1;
 fi
 
-# deploy bo
 cd $linkToBoDir
-cd VideoDesk/Symfony/
-echo -e "\e[7mdeploy bo\e[27m"
-bin/deploy_dev.sh
-echo -e "\e[42mbo deployed\e[0m"
-app/console videodesk:version:upgrade --release
+    cd VideoDesk/Symfony/
+    echo -e "\e[7mdeploy bo\e[27m"
+    bin/deploy_dev.sh
+    echo -e "\e[42mbo deployed\e[0m"
 
-cd $linkToBoDir
-git add VideoDesk/Symfony/app/config/version.yml
-git commit -m "up release version to $nextversion";
-git push origin "release-$nextversion";
-echo -e "\e[42mUp version project\e[0m"
 
 # deploy front
 cd $linkToFrontDir
-echo -e "\e[7mdeploy front\e[27m"
-./deploy.sh
-echo -e "\e[42mfront deployed\e[0m";
+    echo -e "\e[7mdeploy front\e[27m"
+    ./deploy.sh
+    echo -e "\e[42mfront deployed\e[0m";
 
 # (bo and front) new release ready !
 echo " > bo is now running release-$nextversion";
