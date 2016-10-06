@@ -5,7 +5,6 @@ meet githook, a robot sitting on devrow and syncing dev environments with github
 but it needs a lot of improvement:
 * apply fixtures when needed
 * write some logs
-* display current operations in progress
 * bring me a morning coffee...
 
 You can read githook's sources here and contribute:
