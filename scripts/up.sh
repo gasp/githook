@@ -245,7 +245,7 @@ cd $linkToBoDir
     ## up version
     cd VideoDesk/Symfony/
     app/console videodesk:version:upgrade --release
-    git add VideoDesk/Symfony/app/config/version.yml
+    git add app/config/version.yml
     git commit -m "up release version to $nextversion";
     git push origin "release-$nextversion";
     echo -e "\e[42mUp version project\e[0m"
